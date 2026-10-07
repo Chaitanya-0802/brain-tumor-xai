@@ -65,7 +65,8 @@ class MRIDataset(Dataset):
         return self.transform(img), label
 
 
-def get_dataloaders(batch_size=64, num_workers=2, val_frac=0.15):
+
+def get_dataloaders(batch_size=64, num_workers=2, val_frac=0.15, augment=True):
     train_all = build_samples(config.DATA_DIR / "Training")
     test_samples = build_samples(config.DATA_DIR / "Testing")
 
@@ -74,16 +75,19 @@ def get_dataloaders(batch_size=64, num_workers=2, val_frac=0.15):
         train_all, test_size=val_frac, stratify=labels, random_state=config.SEED
     )
 
-    train_ds = MRIDataset(train_samples, get_transforms(train=True))
+    train_ds = MRIDataset(train_samples, get_transforms(train=augment))
     val_ds = MRIDataset(val_samples, get_transforms(train=False))
     test_ds = MRIDataset(test_samples, get_transforms(train=False))
 
-    train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
-                              num_workers=num_workers, pin_memory=True)
-    val_loader = DataLoader(val_ds, batch_size=batch_size, shuffle=False,
-                            num_workers=num_workers, pin_memory=True)
-    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False,
-                             num_workers=num_workers, pin_memory=True)
+    train_loader = DataLoader(
+        train_ds, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True
+    )
+    val_loader = DataLoader(
+        val_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True
+    )
+    test_loader = DataLoader(
+        test_ds, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True
+    )
     return train_loader, val_loader, test_loader
 
 
