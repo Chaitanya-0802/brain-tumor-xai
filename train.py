@@ -59,6 +59,7 @@ def main():
     ap.add_argument("--patience", type=int, default=8)
     ap.add_argument("--tag", default="v1", help="checkpoint version suffix, e.g. v1, v2")
     ap.add_argument("--resume", action="store_true", help="continue from the last checkpoint")
+    ap.add_argument("--no_aug", action="store_true", help="disable training augmentation (ablation)")
     args = ap.parse_args()
 
     seed_everything()
@@ -74,7 +75,7 @@ def main():
     hist_path = config.RESULTS_DIR / f"{name}_history.json"
     metrics_path = config.RESULTS_DIR / f"{name}_metrics.json"
 
-    train_loader, val_loader, test_loader = get_dataloaders(batch_size=args.batch_size)
+    train_loader, val_loader, test_loader = get_dataloaders(batch_size=args.batch_size,  augment=not args.no_aug)
     model = get_model(args.model).to(device)
     n_params = sum(p.numel() for p in model.parameters())
     print(f"Model: {args.model} | parameters: {n_params:,}")
